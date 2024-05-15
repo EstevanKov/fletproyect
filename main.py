@@ -3,46 +3,44 @@ import threading
 import time
 import random
 
-class ActualizadorNumerosAleatorios:
-    def __init__(self, campo_texto1, campo_texto2, texto_contador):
-        self.campo_texto1 = campo_texto1
-        self.campo_texto2 = campo_texto2
-        self.texto_contador = texto_contador
-        self.en_ejecucion = False
+class Actualizar:
+    def __init__(self, campo1, campo2, contador):
+        self.campo1 = campo1
+        self.campo2 = campo2
+        self.contador = contador
+        self.ejecucion = False
         self.hilo = None
 
     def iniciar(self):
-        if not self.en_ejecucion:
-            self.en_ejecucion = True
-            self.hilo = threading.Thread(target=self.actualizar_numeros)
+        if not self.ejecucion:
+            self.ejecucion = True
+            self.hilo = threading.Thread(target=self.actnumeros)
             self.hilo.start()
 
     def detener(self):
-        self.en_ejecucion = False
+        self.ejecucion = False
         if self.hilo is not None:
             self.hilo.join()
 
-    def actualizar_numeros(self):
-        while self.en_ejecucion:
-            # Generar y mostrar números aleatorios inmediatamente
+    def actnumeros(self):
+        while self.ejecucion:
             num1 = random.randint(10, 100)
             num2 = random.randint(10, 100)
-            self.campo_texto1.value = str(num1)
-            self.campo_texto2.value = str(num2)
-            self.texto_contador.page.update()
+            self.campo1.value = str(num1)
+            self.campo2.value = str(num2)
+            self.contador.page.update()
             
-            # Esperar 30 segundos antes de la siguiente actualización
             for i in range(30, -1, -1):
-                if not self.en_ejecucion:
+                if not self.ejecucion:
                     break
-                self.texto_contador.value = f"Próxima actualización en: {i} segundos"
-                self.texto_contador.page.update()
+                self.contador.value = f"Cambio en: {i} segundos"
+                self.contador.page.update()
                 time.sleep(1)
-            if not self.en_ejecucion:
+            if not self.ejecucion:
                 break
 
 def main(page: ft.Page):
-    page.title = "Flet: Contador y Números Aleatorios"
+    page.title = "Flet: Contador"
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
 
     txt_number = ft.TextField(value="0", text_align="center", width=100)
@@ -57,9 +55,9 @@ def main(page: ft.Page):
 
     txt_random1 = ft.TextField(value="", text_align="center", width=100)
     txt_random2 = ft.TextField(value="", text_align="center", width=100)
-    texto_contador = ft.Text(value="Próxima actualización en: 30 segundos")
+    contador = ft.Text(value="Cambio en: 30 segundos",text_align="center")
 
-    actualizador = ActualizadorNumerosAleatorios(txt_random1, txt_random2, texto_contador)
+    actualizador = Actualizar(txt_random1, txt_random2, contador)
 
     def iniciar_actualizacion(e):
         actualizador.iniciar()
@@ -70,7 +68,7 @@ def main(page: ft.Page):
     page.add(
         ft.Column(
             [
-                texto_contador,
+                contador,
                 ft.Row(
                     [
                         ft.IconButton(ft.icons.REMOVE, on_click=minus_click),
